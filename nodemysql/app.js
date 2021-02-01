@@ -171,6 +171,18 @@ const upload = multer({
 });
 
 app.post('/item/insert', upload.single('pictureurl'), (req, res, next) => {
+	
+
+	const itemname = req.body.itemname;
+	const description = req.body.description;
+	const price = req.body.price;
+	var pictureurl;
+	if(req.file){
+		pictureurl = req.file.filename
+	}else{
+		pictureurl = "default.jpg";
+	}	
+	
 	var connection = mysql.createConnection({
 		host    :'localhost',
 		port : 3306,
@@ -185,16 +197,7 @@ app.post('/item/insert', upload.single('pictureurl'), (req, res, next) => {
 			throw err;
 		}
 	});
-
-	const itemname = req.body.itemname;
-	const description = req.body.description;
-	const price = req.body.price;
-	var pictureurl;
-	if(req.file){
-		pictureurl = req.file.filename
-	}else{
-		pictureurl = "default.jpg";
-	}	
+	
 	connection.query('select max(itemid) maxid from goods', function(err, results, fields) {
 		if (err)
 			throw err;
@@ -212,6 +215,13 @@ app.post('/item/insert', upload.single('pictureurl'), (req, res, next) => {
         var day = date.getDate();
         day = day >= 10 ? day : '0' + day;
         
+        var hour = date.getHours();
+        hour = hour >= 10 ? hour : '0' + hour;
+        var minute = date.getMinutes();
+        minute = minute >= 10 ? minute : '0' + minute;
+        var second = date.getSeconds();
+        second = second >= 10 ? second : '0' + second;
+        
 		connection.query('insert into goods(itemid, itemname, price, description, pictureurl, updatedate) values(?,?,?,?,?,?)', 
 				[itemid, itemname, price, description, pictureurl,  year + '-' + month + '-' + day], function(err, results, fields) {
 			if (err)
@@ -219,7 +229,7 @@ app.post('/item/insert', upload.single('pictureurl'), (req, res, next) => {
 			console.log(results)
 			if(results.affectedRows == 1){
 				const writeStream = fs.createWriteStream('./update.txt');
-				writeStream.write(Date.now().toString());
+				writeStream.write(year + '-' + month + '-' + day + " " + hour + ":" + minute + ":" + second);
 				writeStream.end();
 
 				res.json({'result':true}); 
