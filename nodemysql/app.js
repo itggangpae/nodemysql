@@ -242,7 +242,7 @@ app.post('/item/insert', upload.single('pictureurl'), (req, res, next) => {
 				[itemid, itemname, price, description, pictureurl,  year + '-' + month + '-' + day], function(err, results, fields) {
 			if (err)
 				throw err;
-			console.log(results)
+			
 			if(results.affectedRows == 1){
 				const writeStream = fs.createWriteStream('./update.txt');
 				writeStream.write(year + '-' + month + '-' + day + " " + hour + ":" + minute + ":" + second);
